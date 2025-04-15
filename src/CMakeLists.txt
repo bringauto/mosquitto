@@ -204,8 +204,23 @@ if (WITH_WEBSOCKETS)
 	endif (STATIC_WEBSOCKETS)
 endif (WITH_WEBSOCKETS)
 
-add_executable(mosquitto ${MOSQ_SRCS})
-target_link_libraries(mosquitto ${MOSQ_LIBS})
+FIND_PACKAGE(CMLIB REQUIRED COMPONENTS STORAGE CMDEF)
+
+BA_PACKAGE_LIBRARY(zlib v1.2.11)
+
+CMDEF_ADD_EXECUTABLE(
+	TARGET mosquitto
+	SOURCES ${MOSQ_SRCS}
+	VERSION ${VERSION}
+)
+
+FIND_PACKAGE(ZLIB REQUIRED)
+FIND_PACKAGE(OpenSSL REQUIRED)
+
+target_link_libraries(mosquitto
+	${MOSQ_LIBS}
+	ZLIB::ZLIB OpenSSL::SSL OpenSSL::Crypto
+)
 if (WIN32)
 	set_target_properties(mosquitto PROPERTIES ENABLE_EXPORTS 1)
 endif (WIN32)
@@ -218,5 +233,23 @@ if (UNIX)
 	endif (APPLE)
 endif (UNIX)
 
-install(TARGETS mosquitto RUNTIME DESTINATION "${CMAKE_INSTALL_SBINDIR}")
-install(FILES ../include/mosquitto_broker.h ../include/mosquitto_plugin.h DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+#install(TARGETS mosquitto RUNTIME DESTINATION "${CMAKE_INSTALL_SBINDIR}")
+#install(FILES ../include/mosquitto_broker.h ../include/mosquitto_plugin.h DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+
+set_target_properties(mosquitto PROPERTIES
+	INSTALL_RPATH "$ORIGIN/../${CMDEF_LIBRARY_INSTALL_DIR}"
+)
+
+INCLUDE(GNUInstallDirs)
+CMDEF_INSTALL(
+		TARGET mosquitto
+		NAMESPACE mosquitto::
+)
+BA_PACKAGE_DEPS_IMPORTED(mosquitto)
+
+CMDEF_PACKAGE(
+		MAIN_TARGET mosquitto
+		VERSION ${VERSION}
+)
+SET(CPACK_GENERATOR ZIP)
+INCLUDE(CPack)

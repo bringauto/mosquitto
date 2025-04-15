@@ -6,6 +6,7 @@
 
 cmake_minimum_required(VERSION 3.18)
 
+
 project(mosquitto)
 set (VERSION 2.0.21)
 
@@ -99,13 +100,13 @@ endif()
 # Include projects
 # ========================================
 
-option(WITH_CLIENTS "Build clients?" ON)
+option(WITH_CLIENTS "Build clients?" OFF)
 option(WITH_BROKER "Build broker?" ON)
-option(WITH_APPS "Build apps?" ON)
-option(WITH_PLUGINS "Build plugins?" ON)
-option(DOCUMENTATION "Build documentation?" ON)
+option(WITH_APPS "Build apps?" OFF)
+option(WITH_PLUGINS "Build plugins?" OFF)
+option(DOCUMENTATION "Build documentation?" OFF)
 
-add_subdirectory(lib)
+#add_subdirectory(lib)
 if (WITH_CLIENTS)
 	add_subdirectory(client)
 endif (WITH_CLIENTS)
